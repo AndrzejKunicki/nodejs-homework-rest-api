@@ -10,5 +10,3 @@ db.then(() => {
 }).catch((e) => {
   console.log(`Error: ${e.message}`);
 });
-
-//Database connection successful
