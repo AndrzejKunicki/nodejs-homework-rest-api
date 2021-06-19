@@ -11,7 +11,7 @@ const register = async (req, res, next) => {
       return res.status(HttpCode.CONFLICT).json({
         status: "error",
         code: HttpCode.CONFLICT,
-        message: "Email is already used",
+        message: "This email is already used",
       });
     }
 
@@ -35,7 +35,7 @@ const login = async (req, res, next) => {
       return res.status(HttpCode.UNAUTHORIZED).json({
         status: "error",
         code: HttpCode.UNAUTHORIZED,
-        message: "Invalid credentials",
+        message: "Email or password is wrong",
       });
     }
     const id = user.id;
@@ -50,8 +50,31 @@ const login = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   try {
-    const contacts = await Users.listContacts();
-    return res.json({ status: "success", code: 200, data: { contacts } });
+    const id = req.user.id;
+    await Users.updateToken(id, null);
+    return res.status(HttpCode.NO_CONTENT).json({});
+  } catch (error) {
+    next(error);
+  }
+};
+
+const current = async (req, res, next) => {
+  try {
+    const user = await Users.findByEmail(req.user.email);
+    if (!user) {
+      return res.status(HttpCode.UNAUTHORIZED).json({
+        status: "error",
+        code: HttpCode.UNAUTHORIZED,
+        message: "Not authorized",
+      });
+    }
+    const { email, subscription } = req.user;
+    const payload = { email, subscription };
+    return res.status(HttpCode.OK).json({
+      status: "success",
+      code: 200,
+      data: { payload },
+    });
   } catch (error) {
     next(error);
   }
@@ -61,4 +84,5 @@ module.exports = {
   register,
   login,
   logout,
+  current,
 };
