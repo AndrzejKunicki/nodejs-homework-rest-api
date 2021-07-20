@@ -3,6 +3,7 @@ const gr = require("gravatar");
 const { Subscription } = require("../helpers/constants");
 const bcrypt = require("bcryptjs");
 const SALT_WORK_FACTOR = 8;
+const { v4: uuid } = require("uuid");
 
 const userSchema = new Schema(
   {
@@ -37,6 +38,15 @@ const userSchema = new Schema(
     idCloudAvatar: {
       type: String,
       default: null,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verifyToken: {
+      type: String,
+      required: true,
+      default: uuid(),
     },
   },
   { versionKey: false, timestamps: true }
